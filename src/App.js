@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./App.css";
 import SearchBox from "./components/SearchBox";
 import WeatherDetails from "./components/WeatherDetails";
 import Forecast from "./components/Forecast";
@@ -6,6 +7,7 @@ import { useWeather } from "./hooks/useWeather";
 import ThemeToggle from "./components/ThemeToggle";
 import Loader from "./components/Loader";
 import ErrorMessage from "./components/ErrorMessage";
+import { WiDaySunny } from "react-icons/wi";
 
 function App() {
   const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
@@ -93,167 +95,55 @@ function App() {
     addRecentCity(recentCity);
   };
 
-  const getThemeGradient = () => {
-    if (!weather) {
-      return theme === "dark"
-        ? "from-slate-900 via-slate-800 to-slate-950"
-        : "from-sky-200 via-cyan-100 to-indigo-200";
-    }
-
-    const condition = weather.weather[0].main.toLowerCase();
-    if (condition.includes("clear")) {
-      return theme === "dark"
-        ? "from-slate-900 via-blue-900 to-indigo-950"
-        : "from-cyan-200 via-sky-200 to-amber-100";
-    }
-    if (condition.includes("cloud")) {
-      return theme === "dark"
-        ? "from-slate-800 via-gray-700 to-slate-900"
-        : "from-gray-200 via-slate-100 to-blue-100";
-    }
-    if (condition.includes("rain") || condition.includes("drizzle")) {
-      return theme === "dark"
-        ? "from-slate-900 via-blue-950 to-gray-900"
-        : "from-slate-300 via-blue-200 to-cyan-100";
-    }
-    if (condition.includes("snow")) {
-      return theme === "dark"
-        ? "from-slate-900 via-blue-900 to-gray-800"
-        : "from-blue-100 via-white to-slate-100";
-    }
-    if (condition.includes("thunder")) {
-      return theme === "dark"
-        ? "from-zinc-900 via-slate-900 to-indigo-950"
-        : "from-slate-300 via-violet-200 to-indigo-100";
-    }
-    return theme === "dark"
-      ? "from-slate-900 via-slate-800 to-slate-950"
-      : "from-sky-200 via-cyan-100 to-indigo-200";
-  };
-
-  // Weather animation icons
-  const getWeatherAnimation = () => {
-    if (!weather) return null;
-    const condition = weather.weather[0].main.toLowerCase();
-
-    if (condition.includes("clear"))
-      return (
-        <div className="hidden sm:block absolute top-10 right-10 w-20 h-20 bg-yellow-300 rounded-full animate-float shadow-xl"></div>
-      );
-
-    if (condition.includes("cloud"))
-      return (
-        <div className="hidden sm:block absolute top-8 right-8">
-          <div className="w-20 h-10 bg-gray-300 rounded-full blur-sm animate-float"></div>
-          <div className="w-16 h-8 bg-gray-400 rounded-full blur-sm -mt-2 ml-3 animate-float"></div>
-        </div>
-      );
-
-    if (condition.includes("rain"))
-      return (
-        <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute bg-blue-400 opacity-60 h-8 w-1 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: `rain ${1 + Math.random()}s linear infinite`,
-              }}
-            ></div>
-          ))}
-          <style>
-            {`@keyframes rain {
-                0% { transform: translateY(-100px); opacity: 0; }
-                20% { opacity: 1; }
-                100% { transform: translateY(800px); opacity: 0; }
-              }`}
-          </style>
-        </div>
-      );
-
-    if (condition.includes("snow"))
-      return (
-        <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 15 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute bg-white rounded-full opacity-80"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                width: `${Math.random() * 6 + 4}px`,
-                height: `${Math.random() * 6 + 4}px`,
-                animation: `snow ${2 + Math.random() * 2}s linear infinite`,
-              }}
-            ></div>
-          ))}
-          <style>
-            {`@keyframes snow {
-                0% { transform: translateY(-10px); opacity: 0; }
-                50% { opacity: 1; }
-                100% { transform: translateY(800px); opacity: 0; }
-              }`}
-          </style>
-        </div>
-      );
-
-    return null;
-  };
-
   return (
-    <div className={`relative flex justify-center items-center min-h-screen px-3 py-4 sm:px-6 sm:py-8 transition-all duration-500 bg-gradient-to-br ${getThemeGradient()}`}>
-      {getWeatherAnimation()}
+    <main className={`dashboard ${theme === "dark" ? "dashboard-dark" : ""}`}>
+      <div className="dashboard-glow dashboard-glow-one" />
+      <div className="dashboard-glow dashboard-glow-two" />
+      <div className="dashboard-shell">
+        <aside className="sidebar">
+          <a className="brand" href="#top" aria-label="Atmos home">
+            <span className="brand-mark"><WiDaySunny size={28} /></span>
+            <span>atmos<span className="brand-period">.</span><small>WEATHER INTELLIGENCE</small></span>
+          </a>
+          <div className="sidebar-label">WORKSPACE</div>
+          <a href="#overview" className="nav-link nav-link-active"><span>◈</span> Overview <span className="nav-indicator" /></a>
+          <a href="#forecast" className="nav-link"><span>▦</span> Forecast</a>
+          <div className="sidebar-label locations-label">SAVED LOCATIONS</div>
+          {recentCities.length > 0 ? recentCities.map((recentCity, index) => (
+            <button key={recentCity} className="location-link" onClick={() => selectRecentCity(recentCity)}>
+              <span className="location-dot" />{recentCity}<span className="location-index">0{index + 1}</span>
+            </button>
+          )) : <p className="sidebar-empty">Your recent searches will appear here.</p>}
+          <div className="sidebar-bottom"><span className="status-pulse" /> SYSTEM OPERATIONAL <small>ATMOS CORE · V 2.4.0</small></div>
+        </aside>
 
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.45),transparent_60%)] dark:bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.16),transparent_60%)]"></div>
+        <section className="workspace" id="top">
+          <header className="topbar">
+            <div className="breadcrumb"><span>Workspace</span><b>/</b> Weather overview</div>
+            <div className="topbar-actions"><span className="live-status"><i /> LIVE DATA</span><ThemeToggle theme={theme} toggleTheme={toggleTheme} /><button className="unit-toggle" onClick={toggleUnit}>{unit}° <span>/{unit === "C" ? "F" : "C"}</span></button><div className="avatar">A</div></div>
+          </header>
 
-      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-xl bg-white/25 dark:bg-gray-900/45 backdrop-blur-xl shadow-2xl rounded-3xl p-4 sm:p-6 text-center transition-all duration-500 border border-white/35 dark:border-gray-700">
-        <div className="flex flex-wrap gap-2 justify-center sm:justify-end mb-3">
-          <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
-          <button
-            onClick={toggleUnit}
-            className="px-3 py-1 rounded-lg text-xs sm:text-sm font-medium bg-white/55 dark:bg-gray-700/55 text-gray-700 dark:text-gray-100 border border-white/40 dark:border-gray-500"
-          >
-            Unit: {unit === "C" ? "Celsius" : "Fahrenheit"}
-          </button>
-        </div>
+          <div className="content" id="overview">
+            <div className="page-heading"><div><div className="eyebrow">CLIMATE CONTROL CENTER <span>—</span> 01</div><h1>Weather overview</h1><p>Your atmosphere, at a glance.</p></div><div className="date-chip"><span>LOCAL TIME</span>{new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</div></div>
 
-        <h1 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100 tracking-wide">
-          Weather Pulse
-        </h1>
+            <div className="search-panel"><div className="search-copy"><span className="search-icon">⌕</span><div><strong>Explore a location</strong><small>Search any city to see live conditions</small></div></div><SearchBox city={city} setCity={setCity} onSearch={handleSearch} onUseLocation={handleUseLocation} /></div>
 
-        <SearchBox
-          city={city}
-          setCity={setCity}
-          onSearch={handleSearch}
-          onUseLocation={handleUseLocation}
-        />
+            {error && <ErrorMessage message={error} />}
+            {loading && <Loader />}
 
-        {recentCities.length > 0 && (
-          <div className="flex flex-wrap gap-2 justify-center mb-4">
-            {recentCities.map((recentCity) => (
-              <button
-                key={recentCity}
-                onClick={() => selectRecentCity(recentCity)}
-                className="text-xs px-3 py-1 rounded-full bg-white/45 dark:bg-gray-700/40 border border-white/40 dark:border-gray-500 text-gray-700 dark:text-gray-100 hover:scale-105 transition-transform"
-              >
-                {recentCity}
-              </button>
-            ))}
+            {weather && !loading ? (
+              <div className="weather-grid">
+                <div className="weather-main-card"><div className="card-topline"><span><i /> CURRENT CONDITIONS</span><span>UPDATED JUST NOW</span></div><WeatherDetails weather={weather} unit={unit} /></div>
+                <div className="forecast-panel" id="forecast"><div className="panel-heading"><div><span className="eyebrow">LOOK AHEAD</span><h2>5-day forecast</h2></div><span className="panel-arrow">↗</span></div><Forecast forecast={forecast} unit={unit} /></div>
+              </div>
+            ) : !loading && !error ? (
+              <div className="welcome-panel"><div className="welcome-orbit"><div className="orbit-ring orbit-ring-one"/><div className="orbit-ring orbit-ring-two"/><div className="orbit-core"><WiDaySunny size={52}/></div><span className="orbit-satellite"/></div><span className="eyebrow">ATMOSPHERIC INTELLIGENCE</span><h2>Forecast your next move.</h2><p>Search a city or use your current location to unlock real-time conditions and a five-day outlook.</p><div className="welcome-stats"><div><strong>24/7</strong><span>LIVE MONITORING</span></div><i/><div><strong>5 day</strong><span>FORECAST WINDOW</span></div><i/><div><strong>Global</strong><span>LOCATION COVERAGE</span></div></div></div>
+            ) : null}
+            <footer className="footer"><span>ATMOS <b>•</b> WEATHER INTELLIGENCE PLATFORM</span><span>BUILT FOR WHAT’S NEXT <b>↗</b></span></footer>
           </div>
-        )}
-
-        {error && <ErrorMessage message={error} />}
-        {loading && <Loader />}
-        {weather && !loading && (
-          <>
-            <WeatherDetails weather={weather} unit={unit} />
-            <Forecast forecast={forecast} unit={unit} />
-          </>
-        )}
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
 
